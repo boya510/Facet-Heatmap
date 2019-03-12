@@ -1,0 +1,63 @@
+library(ggplot2)
+library(plyr)
+library(scales)
+library(zoo)
+library(grid)
+
+df <- read.delim("cycle.txt", header = T)  
+df <- df[,1:5]
+
+# Part1 
+# 总图
+ggplot(df, aes(Sample, Gene, fill = RPKM)) +
+  geom_tile(colour = "white") + 
+  # facet_grid(Pathway~Otu,scales="free_y",space="free",as.table=TRUE,drop=FALSE,margins=FALSE) + 
+  facet_grid(Pathway~Otu,scales="free") +
+  scale_fill_gradient(low="red", high="green") +
+  labs(x="Samples of different periods",
+       y="Representative gene",
+       fill="RPKM",
+       title = "Red tide metabolic cycle Heatmap", 
+       subtitle="2017.8-2017-12") 
+
+# Part2
+# 数据分片
+C <- df[1:250,1:5]
+N <- df[251:500,1:5]
+S <- df[501:750,1:5]
+Fe <- df[751:1000,1:5]
+B12 <- df[1001:1250,1:5]
+
+# 分类画图
+p1 <- ggplot(C, aes(Sample, Gene, fill = RPKM)) +
+  geom_tile(colour = "white") + 
+  facet_wrap(~Otu,nrow=2) +
+  scale_fill_gradient(low="red", high="green") +
+  labs(y="C cycle Gene")
+
+p2 <- ggplot(N, aes(Sample, Gene, fill = RPKM)) +
+  geom_tile(colour = "white") + 
+  facet_wrap(~Otu,nrow=2) +
+  scale_fill_gradient(low="red", high="green") +
+  labs(y="N cycle Gene")
+
+p3 <- ggplot(S, aes(Sample, Gene, fill = RPKM)) +
+  geom_tile(colour = "white") + 
+  facet_wrap(~Otu,nrow=2) +
+  scale_fill_gradient(low="red", high="green") +
+  labs(y="S cycle Gene")
+
+p4 <- ggplot(Fe, aes(Sample, Gene, fill = RPKM)) +
+  geom_tile(colour = "white") + 
+  facet_wrap(~Otu,nrow=2) +
+  scale_fill_gradient(low="red", high="green") +
+  labs(y="Fe cycle Gene")
+
+# 分框
+grid.newpage()
+pushViewport(viewport(layout = grid.layout(2, 2)))
+vplayout = function(x, y) viewport(layout.pos.row = x, layout.pos.col = y)
+print(p1, vp = vplayout(1, 1))
+print(p2, vp = vplayout(1, 2))
+print(p3, vp = vplayout(2, 1))
+print(p4, vp = vplayout(2, 2))
